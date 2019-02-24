@@ -1,0 +1,175 @@
+---
+title: "MATH 423 - Assignment 3"
+author: "Emir Sevinc 260682995"
+date: "November 23, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=F, warning=F}
+library(scatterplot3d)
+```
+
+# Question 1)
+
+From MSE for the given model is:
+
+$\sum_{i=1}^{n}(Y_i - (X_{1i}\hat\beta_1+X_{2i}\hat\beta_2))^2\\\\$
+$=\sum_{i=1}^{n}(Y_i^2 + (X_{1i}\hat\beta_1+X_{2i}\hat\beta_2)^2-2Y_i(X_{1i}\hat\beta_1+X_{2i}\hat\beta_2))\\\\$
+$=\sum_{i=1}^{n}(Y_i^2+ X_{1i}^2\hat\beta_1^2+2\hat\beta_1\hat\beta_2X_{1i}X_{2i}+X_{2i}^2\hat\beta_2^2-2Y(X_{1i}\hat\beta_1)-2Y(X_{2i}\hat\beta_2))\\\\$
+$=\sum_{i=1}^{n}Y_i^2+ \sum_{i=1}^{n}X_{1i}^2\hat\beta_1^2+2\hat\beta_1\hat\beta_2\sum_{i=1}^{n}X_{1i}X_{2i}+\sum_{i=1}^{n}X_{2i}^2\hat\beta_2^2-\sum_{i=1}^{n}2Y(X_{1i}\hat\beta_1)-\sum_{i=1}^{n}2Y(X_{2i}\hat\beta_2))\\\\$
+since $\sum_{i=1}^{n}X_{1i}X_{2i}=0$ as given by the question, this is eqaul to:
+$\\\\=\sum_{i=1}^{n}Y_i^2+ \sum_{i=1}^{n}X_{1i}^2\hat\beta_1^2+\sum_{i=1}^{n}X_{2i}^2\hat\beta_2^2-\sum_{i=1}^{n}2Y(X_{1i}\hat\beta_1)-\sum_{i=1}^{n}2Y(X_{2i}\hat\beta_2))\\\\$
+$=\sum_{i=1}^{n}(Y_i^2+ X_{1i}^2\hat\beta_1^2+X_{2i}^2\hat\beta_2^2-2Y(X_{1i}\hat\beta_1)-2Y(X_{2i}\hat\beta_2))\\\\$
+This is equal to:
+$\sum_{i=1}^{n}(Y_i-X_{1i}\hat\beta_1)^2 + X_{2i}^2\hat\beta_2^2-2Y(X_{2i}\hat\beta_2)$. If we differentiate this with respect to $\hat\beta_1$, the $\hat\beta_2$ terms will disappear and we will be left with $d/d\hat\beta_1 \sum_{i=1}^{n}(Y_i-X_{1i}\beta_1)^2$; which is the normal equation needed to minimise the simple linear regression MSE for $\hat\beta_1$, that is $\sum_{i=1}^{n}(Y_i-X_{1i}\hat\beta_1)^2\\$
+Similarly, the expression is also equal to $\sum_{i=1}^{n}(Y_i-X_{2i}\hat\beta_2)^2+X_{1i}^2\hat\beta_1^2-2Y(X_{1i}\hat\beta_1)\\$
+Once again, since differentiating with respect to $\hat\beta_2$ cancel all the $\hat\beta_1$ terms, this will be equivalent to optimising the simple linear regression MSE for  $\hat\beta_2$, that is $\sum_{i=1}^{n}(Y_i-X_{2i}\hat\beta_2)^2\\$
+This shows that given the condition; optimising the MSE for this model is equivalent to optimising the separate simple linear regression MSE's, so they will provide the same least squares estimators.
+
+
+
+# Question 2)
+
+## 1)
+```{r, message=F, warning=F}
+X1 <- c(4,3,10,7)
+X2 <- c(5,4,9,10)
+Y <- c(25,20,57,50)
+fit.Y<-lm(Y~X1+X2)
+summary(fit.Y)
+```
+```{r, message=F, warning=F}
+
+s3d <-scatterplot3d(X1,X2,Y, pch=19, grid=TRUE, main="Plane of Best Fit",angle=30)
+s3d$plane3d(fit.Y, col="red")
+```
+The computed results are:
+
+$\hat\beta_0 = -1.9412$, $\hat\beta_1 = 3.2941$, and $\hat\beta_2 = 2.8824$ and thus the fitted model is 
+$Y =-1.9412 + 3.2941*X1+2.8824*X2$
+
+## 2)
+
+```{r, message=F, warning=F}
+c1 <- rep(1,4)
+X<-cbind(c1,X1,X2)
+X
+```
+```{r, message=F, warning=F}
+XtX<-t(X) %*% X
+XtX
+```
+```{r, message=F, warning=F}
+XtXinv<-solve(XtX)
+
+XtXinv
+```
+
+## 3)
+```{r, message=F, warning=F}
+
+
+B <- XtXinv %*% t(X) %*% Y
+
+B
+```
+So we computed $\hat\beta_0 = -1.941176$, $\hat\beta_1 = 3.294118$, and $\hat\beta_2 = 2.882353$. Note that these are almost exaclty the same as what we got from the regression we fit earier in part 1, and the minute difference can be attributed to roundoff error.
+
+## 4)
+
+```{r, message=F, warning=F}
+
+H <- X %*% B
+H
+```
+This corresponds to the fitted values of our regression model. Note that we could've gotten the same values with:
+
+```{r, message=F, warning=F}
+
+fit = fitted(fit.Y)
+fit
+```
+## 5)
+
+We had:
+```{r, message=F, warning=F}
+
+XtXinv
+```
+Thus $Var(\hat\beta_0)= \sigma^2*2.16176471$, $Var(\hat\beta_1)=\sigma^2*0.12745098$ and $Var(\hat\beta_2)=\sigma^2*0.1470588$ where $\sigma^2$ is the presumed variance of the error term $\epsilon_i$
+
+
+
+# Question 3)
+ 
+We have $e^T \hat Y = (Y-\hat Y)^THY$ 
+$=(Y^T-\hat Y^T)HY\\$
+$=(Y^T-(HY)^T)HY$ as $\hat Y = HY\\$
+$=(Y^T-Y^TH^T)HY\\$
+$=(Y^T-Y^TH)HY$ as $H^T=H\\$
+$=Y^THY-Y^THHY\\$
+$=Y^THY-Y^THY$ as $HH=H\\$
+$=0$
+ which shows that they are orthogonal.
+
+# Question 4)
+
+```{r, message=F, warning=F}
+data(stackloss)
+names(stackloss)
+## [1] "Air.Flow" "Water.Temp" "Acid.Conc." "stack.loss"
+
+```
+## 1)
+
+```{r, message=F, warning=F}
+plot(stackloss, pch=19)
+```
+
+## 2)
+
+```{r, message=F, warning=F}
+fit.Stackloss<-lm(stack.loss~Air.Flow+Water.Temp+Acid.Conc.,data=stackloss)
+summary(fit.Stackloss)
+```
+The computed results are:
+
+$\hat\beta_0 = -39.9197$, $\hat\beta_1 = 0.7156$, $\hat\beta_2 = 1.2953$ and $\hat\beta_3=-0.1521$ thus the fitted model is $Y = -39.9197 + 0.7156*X1+1.2953*X2-0.1521*X3$
+
+
+## 3)
+
+```{r, message=F, warning=F}
+confint(fit.Stackloss,level=0.90) 
+```
+
+Thus the intevrals are: $[-60.6140306,-19.2253183]$ for $\beta_0\\$
+$[0.4810400 ,0.9502404]$ for $\beta_1\\$
+$[0.6550686,1.9355036]$ for $\beta_2\\$ and
+$[-0.4240127,0.1197676]$ for $\beta_3\\$
+
+
+## 4)
+```{r, message=F, warning=F}
+predict(fit.Stackloss, data.frame(Air.Flow=58, Water.Temp=20, Acid.Conc.=86), 
+        interval = "prediction", conf.level = 0.99)
+```
+Thus the prediction is 14.41064, and the interval is [7.385265,21.43602]
+
+## 5)
+
+0 is includeed in the confidence interval for $\beta_3$ so we can not reject the hypothesis that $\beta_3=0\\$
+From the output the test statistic is given as -0.973 for $\beta_3$
+So:
+
+```{r, message=F, warning=F}
+
+p_val = pt(-0.973, 17, lower.tail=T)+pt(0.973, 17, lower.tail=F)
+p_val
+```
+
+Thus we find the p value as 0.3441956. At $\alpha =0.1$, since $0.1 < 0.3441956$, we fail to reject.
